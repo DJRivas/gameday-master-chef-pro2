@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+  <h2>Full Detailed Results (Admin)</h2>
+  <p class="sub">This page shows every rating with judge and device info. <a href="{{ url_for('admin_logout') }}">Log out</a></p>
+  <h3 style="margin-top:0">Leaderboard Snapshot</h3>
+  <div class="table-wrapper">
+    <table class="table">
+      <thead><tr><th>Rank</th><th>Participant</th><th>Votes</th><th>Avg Total</th></tr></thead>
+      <tbody>
+        {% for row in leaderboard %}
+        <tr><td>{{ loop.index }}</td><td>{{ row.name }}</td><td>{{ row.votes }}</td><td><strong>{{ '%.2f'|format(row.avg_total) }}</strong></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="card">
+  <h2>All Ratings</h2>
+  <div class="table-wrapper">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Participant</th>
+          <th>Taste</th>
+          <th>Presentation</th>
+          <th>Easy</th>
+          <th>Total</th>
+          <th>Judge</th>
+          <th>Device</th>
+          <th>Created</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in detailed %}
+        <tr>
+          <td>{{ r.id }}</td>
+          <td>{{ r.entrant }}</td>
+          <td>{{ r.taste }}</td>
+          <td>{{ r.presentation }}</td>
+          <td>{{ r.easy }}</td>
+          <td><strong>{{ r.total }}</strong></td>
+          <td>{{ r.judge }}</td>
+          <td style="font-size:12px;opacity:.8">{{ r.device_id }}</td>
+          <td>{{ r.created_at }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

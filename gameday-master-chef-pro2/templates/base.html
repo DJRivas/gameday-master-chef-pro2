@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>{{ title }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap">
+      <div class="title">
+        <span class="badge">2025</span>
+        <h1>GAME DAY MASTER CHEF COMPETITION CHALLENGE</h1>
+      </div>
+      <nav>
+        <span class="live-dot"></span> Live Leaderboard
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap layout">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer>
+    App made by <strong>Bryan Rivas</strong> with ❤ for Gameday
+  </footer>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

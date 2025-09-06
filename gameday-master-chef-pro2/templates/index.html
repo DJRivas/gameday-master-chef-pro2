@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block content %}
+  <section class="card">
+    <h2>Rate an Appetizer <span class="ribbon">🏈 Field Tested</span></h2>
+    <p class="sub"><strong>How to score:</strong> Taste — 1: bland • 5: crave‑worthy. Presentation — 1: sloppy • 5: Instagram‑worthy. Easy to Eat — 1: fumbles everywhere • 5: one‑hand, game‑ready.
+    Winner takes home the <strong>GOLDEN SPATULA</strong> 🥇. Second & third get bragging rights only.</p>
+
+    <form id="rateForm" class="grid">
+      <label>Participant</label>
+      <select name="entrant" id="entrant" required>
+        <option value="" disabled selected>Select participant</option>
+        {% for name in entrants %}
+          <option value="{{ loop.index0 }}">{{ name }}</option>
+        {% endfor %}
+      </select>
+
+      <div class="slider-wrap">
+        <em>Taste</em>
+        <input type="range" min="1" max="5" step="1" value="3" id="taste" />
+        <div class="row"><span id="tasteEmoji" class="emoji">🙂</span><span id="tasteScore" class="score-pill">3 / 5</span></div>
+      </div>
+
+      <div class="slider-wrap">
+        <em>Presentation</em>
+        <input type="range" min="1" max="5" step="1" value="3" id="presentation" />
+        <div class="row"><span id="presEmoji" class="emoji">🙂</span><span id="presScore" class="score-pill">3 / 5</span></div>
+      </div>
+
+      <div class="slider-wrap">
+        <em>Easy to Eat</em>
+        <input type="range" min="1" max="5" step="1" value="3" id="easy" />
+        <div class="row"><span id="easyEmoji" class="emoji">🙂</span><span id="easyScore" class="score-pill">3 / 5</span></div>
+      </div>
+
+      <label>(Optional) Your Name</label>
+      <input type="text" id="judge" placeholder="e.g., Bryan" />
+
+      <div class="row">
+        <button class="btn" type="submit" id="submitBtn">Submit Rating</button>
+      </div>
+    </form>
+
+    <div id="thanks" class="hidden">
+      <p id="thanksMsg">Thanks for rating! ✅ You can update your own score for this participant from this device.</p>
+      <div class="row">
+        <button class="btn" id="rateAnother" type="button">Rate another</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Leaderboard <span class="ribbon">Live</span></h2>
+    <div class="table-wrapper">
+      <table class="table" id="resultsTable">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Participant</th>
+            <th>Votes</th>
+            <th>Avg Taste</th>
+            <th>Avg Presentation</th>
+            <th>Avg Easy</th>
+            <th>Avg Total</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="sub">Top three earn trophies automatically. Tie? They share the podium.</p>
+  </section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const tasteEmojis = {1:'🤢',2:'😖',3:'🙂',4:'😋',5:'🤤🔥'};
+  const presEmojis  = {1:'🙈',2:'😬',3:'🙂',4:'😍',5:'🤩✨'};
+  const easyEmojis  = {1:'🥴',2:'😕',3:'🙂',4:'👍',5:'🏈👌'};
+
+  const entrant = document.getElementById('entrant');
+  const taste = document.getElementById('taste');
+  const presentation = document.getElementById('presentation');
+  const easy = document.getElementById('easy');
+  const tasteEmoji = document.getElementById('tasteEmoji');
+  const presEmoji  = document.getElementById('presEmoji');
+  const easyEmoji  = document.getElementById('easyEmoji');
+  const tasteScore = document.getElementById('tasteScore');
+  const presScore  = document.getElementById('presScore');
+  const easyScore  = document.getElementById('easyScore');
+  const judge = document.getElementById('judge');
+  const form = document.getElementById('rateForm');
+  const thanks = document.getElementById('thanks');
+  const thanksMsg = document.getElementById('thanksMsg');
+  const submitBtn = document.getElementById('submitBtn');
+
+  function syncEmoji(){
+    const tv = +taste.value, pv = +presentation.value, ev = +easy.value;
+    tasteEmoji.textContent = tasteEmojis[tv]; presEmoji.textContent = presEmojis[pv]; easyEmoji.textContent = easyEmojis[ev];
+    tasteScore.textContent = `${tv} / 5`; presScore.textContent = `${pv} / 5`; easyScore.textContent = `${ev} / 5`;
+  }
+  ['input','change'].forEach(e => { taste.addEventListener(e, syncEmoji); presentation.addEventListener(e, syncEmoji); easy.addEventListener(e, syncEmoji); });
+  syncEmoji();
+
+  // When entrant changes, check if this device already rated them; if so, load values for edit
+  entrant.addEventListener('change', async () => {
+    if (!entrant.value) return;
+    try{
+      const res = await fetch('/api/my-rating?entrant_index=' + encodeURIComponent(entrant.value));
+      const data = await res.json();
+      if (data.ok && data.rating){
+        taste.value = data.rating.taste;
+        presentation.value = data.rating.presentation;
+        easy.value = data.rating.easy;
+        judge.value = data.rating.judge || '';
+        submitBtn.textContent = 'Update Rating';
+        thanksMsg.textContent = 'Updated! ✅ Your score has been saved.';
+      }else{
+        taste.value = 3; presentation.value = 3; easy.value = 3; judge.value = ''; submitBtn.textContent = 'Submit Rating'; thanksMsg.textContent = 'Thanks for rating! ✅ You can update your own score for this participant from this device.';
+      }
+      syncEmoji();
+    }catch{}
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!entrant.value) { alert('Please select a participant.'); return; }
+    const payload = {
+      entrant_index: +entrant.value,
+      taste: +taste.value,
+      presentation: +presentation.value,
+      easy: +easy.value,
+      judge: judge.value || null
+    };
+    try{
+      const res = await fetch('/api/rate', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'Failed');
+      form.classList.add('hidden');
+      thanks.classList.remove('hidden');
+      refreshLeaderboard();
+    }catch(err){ alert('Error: ' + err.message); }
+  });
+
+  document.getElementById('rateAnother')?.addEventListener('click', ()=>{
+    thanks.classList.add('hidden');
+    form.classList.remove('hidden');
+    form.reset();
+    entrant.selectedIndex = 0;
+    taste.value = 3; presentation.value = 3; easy.value = 3; judge.value=''; submitBtn.textContent='Submit Rating'; syncEmoji();
+  });
+
+  async function refreshLeaderboard(){
+    try{
+      const res = await fetch('/api/leaderboard');
+      const data = await res.json();
+      const rows = [...data].sort((a,b)=> b.avg_total - a.avg_total);
+      const trophy = (i)=> i===0? '🏆' : i===1? '🥈' : i===2? '🥉' : '';
+      const tbody = document.querySelector('#resultsTable tbody');
+      tbody.innerHTML = rows.map((r,i)=>`
+        <tr>
+          <td class="medal">${trophy(i)}</td>
+          <td>${r.name}</td>
+          <td>${r.votes}</td>
+          <td>${r.avg_taste.toFixed(2)}</td>
+          <td>${r.avg_presentation.toFixed(2)}</td>
+          <td>${r.avg_easy.toFixed(2)}</td>
+          <td><strong>${r.avg_total.toFixed(2)}</strong></td>
+        </tr>
+      `).join('');
+    }catch{ /* ignore */ }
+  }
+  refreshLeaderboard();
+  setInterval(refreshLeaderboard, 10000);
+</script>
+{% endblock %}
