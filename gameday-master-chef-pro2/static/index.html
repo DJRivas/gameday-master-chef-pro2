@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>2025 GAME DAY MASTER CHEF COMPETITION CHALLENGE</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap">
+      <div class="title">
+        <span class="badge">2025</span>
+        <h1>GAME DAY MASTER CHEF COMPETITION CHALLENGE</h1>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap layout">
+    <section id="rateCard" class="card">
+      <h2>Rate an Appetizer <span class="ribbon">🏈 Field Tested</span></h2>
+      <ul class="howto">
+        <li><span>😋</span><strong>Taste</strong> — 1: bland → 5: crave‑worthy</li>
+        <li><span>📸</span><strong>Presentation</strong> — 1: sloppy → 5: Instagram‑worthy</li>
+        <li><span>🏈</span><strong>Easy to Eat</strong> — 1: messy → 5: one‑hand, no fumbles</li>
+      </ul>
+      <p class="sub">Winner takes home the <strong>GOLDEN SPATULA 🥇🍳</strong>! Second & third = bragging rights only.</p>
+
+      <form id="rateForm" class="grid">
+        <label>Participant</label>
+        <select name="entrant" id="entrant" required>
+          <option value="" disabled selected>Select participant</option>
+        </select>
+
+        <div class="slider-wrap">
+          <em>Taste</em>
+          <input type="range" min="1" max="5" step="1" value="3" id="taste" />
+          <div class="row"><span id="tasteEmoji" class="emoji">🙂</span><span id="tasteScore" class="score-pill">3 / 5</span></div>
+        </div>
+
+        <div class="slider-wrap">
+          <em>Presentation</em>
+          <input type="range" min="1" max="5" step="1" value="3" id="presentation" />
+          <div class="row"><span id="presEmoji" class="emoji">🙂</span><span id="presScore" class="score-pill">3 / 5</span></div>
+        </div>
+
+        <div class="slider-wrap">
+          <em>Easy to Eat</em>
+          <input type="range" min="1" max="5" step="1" value="3" id="easy" />
+          <div class="row"><span id="easyEmoji" class="emoji">🙂</span><span id="easyScore" class="score-pill">3 / 5</span></div>
+        </div>
+
+        <label>(Optional) Your Name</label>
+        <input type="text" id="judge" placeholder="e.g., Bryan" />
+
+        <div class="row">
+          <button class="btn" type="submit">Submit Rating</button>
+        </div>
+      </form>
+
+      <div id="thanks" class="hidden">
+        <p>Thanks for rating! ✅ You can update your score if you change your mind.</p>
+        <div class="row">
+          <button class="btn" id="rateAnother" type="button">Rate or Update Another</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="resultsCard" class="card">
+      <h2>Leaderboard <span class="ribbon">Live</span></h2>
+      <div class="table-wrapper">
+        <table class="table" id="resultsTable">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Participant</th>
+              <th>Votes</th>
+              <th>Avg Taste</th>
+              <th>Avg Presentation</th>
+              <th>Avg Easy</th>
+              <th>Avg Total</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="sub">Only the top chef takes home the <strong>GOLDEN SPATULA</strong>. Everyone else gets bragging rights. 🏆</p>
+    </section>
+
+    <section id="detailsCard" class="card hidden">
+      <h2>Full Detailed Results</h2>
+      <div id="detailsContent"></div>
+    </section>
+  </main>
+
+  <footer>
+    App made by <strong>Bryan Rivas</strong> with ❤ for Gameday
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
